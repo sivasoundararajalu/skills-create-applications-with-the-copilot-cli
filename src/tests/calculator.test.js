@@ -5,6 +5,9 @@ const {
   subtraction,
   multiplication,
   division,
+  modulo,
+  power,
+  squareRoot,
   calculate,
 } = require('../calculator');
 
@@ -52,6 +55,46 @@ describe('division', () => {
   });
 });
 
+describe('modulo', () => {
+  test('returns the remainder', () => {
+    expect(modulo(10, 3)).toBe(1);
+  });
+
+  test('rejects modulo by zero', () => {
+    expect(() => modulo(1, 0)).toThrow('Modulo by zero is not allowed.');
+  });
+});
+
+describe('power', () => {
+  test('raises a base to an exponent', () => {
+    expect(power(2, 3)).toBe(8);
+  });
+
+  test('supports negative exponents', () => {
+    expect(power(2, -2)).toBe(0.25);
+  });
+});
+
+describe('squareRoot', () => {
+  test('returns the square root of a non-negative number', () => {
+    expect(squareRoot(81)).toBe(9);
+  });
+
+  test('rejects negative numbers', () => {
+    expect(() => squareRoot(-1)).toThrow('Square root of a negative number is not allowed.');
+  });
+});
+
+describe('extended operation image examples', () => {
+  test.each([
+    ['modulo with 5 % 2', modulo, [5, 2], 1],
+    ['power with 2 ^ 3', power, [2, 3], 8],
+    ['square root with √16', squareRoot, [16], 4],
+  ])('%s returns the expected result', (_description, operation, operands, expected) => {
+    expect(operation(...operands)).toBe(expected);
+  });
+});
+
 describe('calculate', () => {
   test.each([
     ['+', 2, 3, 5],
@@ -62,16 +105,28 @@ describe('calculate', () => {
     ['subtraction', 10, 4, 6],
     ['multiplication', 45, 2, 90],
     ['division', 20, 5, 4],
+    ['%', 10, 3, 1],
+    ['**', 2, 3, 8],
+    ['modulo', 10, 3, 1],
+    ['power', 2, 3, 8],
   ])('calculates %s for %d and %d', (operation, firstNumber, secondNumber, expected) => {
     expect(calculate(operation, firstNumber, secondNumber)).toBe(expected);
   });
 
+  test.each([
+    ['sqrt', 81, 9],
+    ['squareRoot', 81, 9],
+  ])('calculates %s for %d', (operation, number, expected) => {
+    expect(calculate(operation, number)).toBe(expected);
+  });
+
   test('rejects unsupported operations', () => {
-    expect(() => calculate('%', 4, 2)).toThrow('Unsupported operation');
+    expect(() => calculate('average', 4, 2)).toThrow('Unsupported operation');
   });
 
   test('rejects non-finite operands', () => {
-    expect(() => calculate('+', Number.NaN, 2)).toThrow('Both operands must be finite numbers.');
-    expect(() => calculate('+', Infinity, 2)).toThrow('Both operands must be finite numbers.');
+    expect(() => calculate('+', Number.NaN, 2)).toThrow('The first operand must be a finite number.');
+    expect(() => calculate('+', Infinity, 2)).toThrow('The first operand must be a finite number.');
+    expect(() => calculate('+', 2, Number.NaN)).toThrow('The second operand must be a finite number.');
   });
 });
